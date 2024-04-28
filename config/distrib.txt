@@ -1,0 +1,16 @@
+node01.host=csel-kh1250-13.cselabs.umn.edu
+node01.port=8013
+node02.host=csel-kh1250-14.cselabs.umn.edu
+node02.port=8014
+node03.host=csel-kh1250-15.cselabs.umn.edu
+node03.port=8015
+node04.host=csel-kh1250-16.cselabs.umn.edu
+node04.port=8016
+node05.host=csel-kh1250-17.cselabs.umn.edu
+node05.port=8017
+node06.host=csel-kh1250-18.cselabs.umn.edu
+node06.port=8018
+node07.host=csel-kh1250-19.cselabs.umn.edu
+node07.port=8019
+node08.host=csel-kh1250-20.cselabs.umn.edu
+node08.port=8020
