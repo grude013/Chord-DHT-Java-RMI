@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class ONode implements INode {
 
     protected final int m = 3;
-    protected ConcurrentHashMap<String, String> localDict = new ConcurrentHashMap<String, String>();
+    protected ConcurrentHashMap<Integer, String> localDict = new ConcurrentHashMap<Integer, String>();
     public Finger[] fingerTable = new Finger[m];
 
     protected int id;
@@ -288,6 +288,9 @@ public class ONode implements INode {
     public Finger[] getFingerTable() {
         return fingerTable;
     }
+    public ConcurrentHashMap<Integer, String> getDictionary() {
+        return localDict;
+    }
 
     /**
      * Get the url of this node's successor
@@ -312,8 +315,8 @@ public class ONode implements INode {
     /**
      * Insert a new word and its definition into the dictionary
      */
-    public boolean insert(String word, String definition) {
-        return false;
+    public int insert(String word, String definition) {
+        return -1;
     }
 
     /**

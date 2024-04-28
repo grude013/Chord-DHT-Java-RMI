@@ -5,6 +5,7 @@ package src;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.concurrent.ConcurrentHashMap;
 
 public interface INode extends Remote {
   // Get the ID of the node
@@ -40,6 +41,9 @@ public interface INode extends Remote {
   // Get the finger table
   public Finger[] getFingerTable() throws RemoteException;
 
+  // Get the dictionary
+  public ConcurrentHashMap<Integer, String> getDictionary() throws RemoteException;
+
   // Update the finger table entry i of node s
   public void updateFingerTable(INode s, int i) throws RemoteException;
 
@@ -47,7 +51,7 @@ public interface INode extends Remote {
   public void updateOthers() throws RemoteException;
 
   // Insert a word and its definition into the dictionary
-  public boolean insert (String word, String definition) throws RemoteException;
+  public int insert (String word, String definition) throws RemoteException;
 
   // Lookup a word in the dictionary
   public String lookup (String word) throws RemoteException;

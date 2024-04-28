@@ -23,7 +23,7 @@ public class Hash {
            }
            else hash = Math.abs(hash);  
         }
-        return hash & 0b111;
+        return hash & 0b111111111111111;
    }
 
    public static void main(String[] argv ) {

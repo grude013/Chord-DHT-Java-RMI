@@ -3,12 +3,14 @@ package src;
 import java.rmi.RemoteException;
 import java.rmi.Naming;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Node implements INode {
     
-    protected final int m = 3;
+    protected final int m = 15;
     protected final int mod = (int)Math.pow(2, m);
     public Finger[] finger = new Finger[m];
+    public ConcurrentHashMap<Integer, String> dictionary = new ConcurrentHashMap<Integer, String>();
     
     public int id;
     public String nodeId;
@@ -30,12 +32,17 @@ public class Node implements INode {
         }
     }
 
-    public boolean insert(String word, String definition) {
-        return true;
+    public int insert(String word, String definition) throws RemoteException {
+        int key = Hash.hash32(word);
+        INode nPrime = this.findSuccessor(key, false);
+        nPrime.getDictionary().put(key, definition);
+        return nPrime.getId();
     }
 
-    public String lookup(String word) {
-        return "";
+    public String lookup(String word) throws RemoteException {
+        int key = Hash.hash32(word);
+        INode nPrime = this.findSuccessor(key, false);
+        return nPrime.getDictionary().get(key);
     }
 
     public INode findSuccessor(int id, boolean traceFlag) throws RemoteException {
@@ -75,10 +82,10 @@ public class Node implements INode {
             // estNode.printPreSucc("Before updateOthers");
 
             this.updateOthers();
-            this.printFingerTable("After updateOthers");
-            estNode.printFingerTable("After updateOthers");
-            this.printPreSucc("After updateOthers");
-            estNode.printPreSucc("After updateOthers");
+            // this.printFingerTable("After updateOthers");
+            // estNode.printFingerTable("After updateOthers");
+            // this.printPreSucc("After updateOthers");
+            // estNode.printPreSucc("After updateOthers");
             // move keys in (predecessor, n] from successor to n
         }
         else {
@@ -154,6 +161,9 @@ public class Node implements INode {
     public Finger[] getFingerTable() {
         return finger;
     }
+    public ConcurrentHashMap<Integer, String> getDictionary() {
+        return dictionary;
+    }
 
     public void printFingerTable(String msg) {
         System.out.println("[" + msg + "] Node " + this.id + " finger table:");
@@ -165,7 +175,10 @@ public class Node implements INode {
         System.out.println("[" + msg + "] Pre/Succ: " + this.predecessor.getId() + " => [Node " + this.id + "] => " + this.getSuccessor().getId());
     }
     public void printDictionary() {
-        
+        System.out.println("Node " + this.id + " dictionary:");
+        for(Integer key : dictionary.keySet()) {
+            System.out.println(key + ": " + dictionary.get(key));
+        }
     }
 
     public int modulo31Add(int n, int m) {
