@@ -36,7 +36,7 @@ public class Hash {
            }
            else hash = Math.abs(hash);  
         }
-        return hash & 0b111111111111111;//1111111111111111111111;
+        return hash;
    }
 }
 

@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Node implements INode {
     
     // The number of bits in the hash
-    protected final int m = 15; //25;
+    protected final int m = 31;
     // The number of nodes in the network
     protected final int mod = (int)Math.pow(2, m);
     // The finger table
@@ -62,9 +62,11 @@ public class Node implements INode {
         this.successor = this;
 
         // Initialize the finger table with start values
+        Printer.print("Creating finger table", this.nodeId);
         for(int i = 0; i < m; i++) {
-            int start = (this.id + (int)Math.pow(2, i)) % mod;
+            int start = modulo31Add(this.id, (int)Math.pow(2, i)) % mod;
             finger[i] = new Finger(start, this);
+            Printer.print("Finger[" + i + "]: " + finger[i].toString(), this.nodeId);
         }
     }
 
@@ -78,7 +80,9 @@ public class Node implements INode {
      */
     public int insert(String word, String definition) throws RemoteException {
         int key = Hash.hash32(word);
+        Printer.print("[insert] Received request to insert word " + word + " with key " + key + " and definition " + definition, this.nodeId);
         INode nPrime = this.findSuccessor(key, false);
+        Printer.print("[insert] Forwarding request to key successor " + nPrime.getId(), this.nodeId);
         boolean res = nPrime.insertLocal(key, definition);
         // If successful, return the id of the node where the word was inserted
         if(res) return nPrime.getId();
@@ -95,10 +99,10 @@ public class Node implements INode {
     public boolean insertLocal(int key, String definition) throws RemoteException {
         // Hash collision occurred, do not insert the word
         if(this.dictionary.containsKey(key)) {
-            System.out.println("Collision: " + key + " in node " + this.id);
+            Printer.print("[insertLocal] Collision: " + key + " in node " + this.id, this.nodeId);
             return false;
         }
-        System.out.println("Inserting " + key);
+        Printer.print("[insertLocal] Inserting key " + key + " into node " + this.id, this.nodeId);
         this.dictionary.put(key, definition);
         return true;
     }
@@ -112,8 +116,12 @@ public class Node implements INode {
      */
     public String lookup(String word) throws RemoteException {
         int key = Hash.hash32(word);
+        Printer.print("[lookup] Received request to lookup word " + word + " with key " + key, this.nodeId);
         INode nPrime = this.findSuccessor(key, false);
-        return nPrime.getDictionary().get(key);
+        Printer.print("[lookup] If key exists, it is stored in node " + nPrime.getId(), this.nodeId);
+        String res = nPrime.getDictionary().get(key);
+        Printer.print("[lookup] Returning definition: " + res, this.nodeId);
+        return res;
     }
 
     /**
@@ -135,7 +143,9 @@ public class Node implements INode {
      * @return The successor node of the given id
      */
     public INode findSuccessor(int id, boolean traceFlag) throws RemoteException {
+        Printer.print("[findSuccessor] Finding successor of " + id, this.nodeId);
         INode nPrime = this.findPredecessor(id, traceFlag);
+        Printer.print("[findSuccessor] Returning successor: " + nPrime.getSuccessor().getId(), this.nodeId);
         return nPrime.getSuccessor();
     }
 
@@ -147,13 +157,17 @@ public class Node implements INode {
      * @return The predecessor node of the given id
      */
     public INode findPredecessor(int id, boolean traceFlag) throws RemoteException {
+        Printer.print("[findPredecessor] Finding predecessor of " + id, this.nodeId);
         INode nPrime = this;
         Range r = new Range(nPrime.getId(), false, nPrime.getSuccessor().getId(), true);
         // while (id ∉ (n', n'.successor])
         while(!r.contains(id)) {
             nPrime = nPrime.closestPrecedingFinger(id);
             r = new Range(nPrime.getId(), false, nPrime.getSuccessor().getId(), true);
+            if(traceFlag)
+                Printer.print("[findPredecessor] New nPrime is " + nPrime.getId(), this.nodeId);
         }
+        Printer.print("[findPredecessor] Found predecessor: " + nPrime.getId(), this.nodeId);
         return nPrime;
     }
 
@@ -164,13 +178,16 @@ public class Node implements INode {
      * @return The closest preceding finger of the given id
      */
     public INode closestPrecedingFinger(int id) throws RemoteException {
+        Printer.print("[closestPrecedingFinger] Finding closest preceding finger of " + id, this.nodeId);
         for(int i = m - 1; i >= 0; i--) {
             Range r = new Range(this.id, id);
             // if (finger[i].node ∈ (n, id))
             if(this.finger[i].node != null && r.contains(this.finger[i].node.getId())) {
+                Printer.print("[closestPrecedingFinger] Found closest preceding finger: " + this.finger[i].node.getId(), this.nodeId);
                 return this.finger[i].node;
             }
         }
+        Printer.print("[closestPrecedingFinger] Returning self as closest preceding finger", this.nodeId);
         return this;
     }
 
@@ -189,30 +206,39 @@ public class Node implements INode {
      * @return True if the node was successfully added to the network
      */
     public boolean join(INode estNode) throws RemoteException {
+        // Join network with estNode
         if(estNode != null) {
             // Update the finger table of self and 
             // other nodes to reflect the new join
+            Printer.print("[join] Joining network - updating finger table", this.nodeId);
+            this.printFingerTable("[join] Before update");
             this.initFingerTable(estNode);
+            this.printFingerTable("[join] After update");
             this.updateOthers();
+            Printer.print("[join] Finished updating other finger tables", this.nodeId);
 
-            // Move keys from (predecessor, n] from successor
+            // Move keys in (predecessor, n] from successor
             INode s = this.getSuccessor();
             INode p = this.getPredecessor();
-            Range r = new Range(p.getId(), false, this.getId(), true);
+            Range r = new Range(p.getId(), false, this.getId(), true); // (predecessor, n]
+            Printer.print("[join] Moving keys from " + r.toString() + " from successor", this.nodeId);
             for(Integer key : s.getDictionary().keySet()) {
                 if(r.contains(key)) {
+                    Printer.print("[join] Moving key " + key + " from successor to self", this.nodeId);
                     s.moveKey(this, key);
                 }
             }
-
-            // Release the join lock
-            // estNode.setJoinLock(false);
         }
+        // Create new network
         else {
-            for(int i = 0; i < m; i++)
+            Printer.print("[join] New network - updating finger table", this.nodeId);
+            for(int i = 0; i < m; i++) {
                 this.finger[i].node = this;
+            }
+            this.printFingerTable("[join]");
             this.predecessor = this;
             this.successor = this.finger[0].node;
+            this.printPreSucc("[join]");
         }
         return true;
     }
@@ -227,14 +253,21 @@ public class Node implements INode {
         this.finger[0].node = estNode.findSuccessor(this.finger[0].start, false);
         this.predecessor = this.getSuccessor().getPredecessor();
         this.getSuccessor().setPredecessor(this);
+        this.printPreSucc("[initFingerTable]");
 
+        // Update the rest of the finger table
         for(int i = 0; i < m - 1; i++) {
+            Printer.print("[initFingerTable] Updating finger " + (i + 1), this.nodeId);
             Range r = new Range(this.id, true, this.finger[i].node.getId(), false);
             // if (finger[i + 1].start ∈ [n, finger[i].node])
-            if(r.contains(this.finger[i + 1].start))
+            if(r.contains(this.finger[i + 1].start)) {
                 this.finger[i + 1].node = this.finger[i].node;
-            else
+                Printer.print("[initFingerTable] Setting finger " + (i + 1) + " to " + this.finger[i].node.getId(), this.nodeId);
+            }
+            else {
                 this.finger[i + 1].node = estNode.findSuccessor(this.finger[i + 1].start, false);
+                Printer.print("[initFingerTable] Setting finger " + (i + 1) + " to " + this.finger[i + 1].node.getId(), this.nodeId);
+            }
         }
     }
 
@@ -242,12 +275,14 @@ public class Node implements INode {
      * Update the finger tables of other nodes in the network
      */
     public void updateOthers() throws RemoteException {
+        Printer.print("[updateOthers] Updating other finger tables", this.nodeId);
         for(int i = 0; i < m; i++) {
             int id = (this.id + 1 - (int)Math.pow(2, i)); // n - 2^i, i=0,1,...,m-1
             // If the value wraps counterclockwise around 0 and becomes negative, add
             // the total number of nodes back to it to get the correct value
             if(id < 0) id += mod; 
             INode p = this.findPredecessor(id, false);
+            Printer.print("[updateOthers] Clockwise id " + id + " found predecessor " + p.getId(), this.nodeId);
             // No need to update own table - we already did this in initFingerTable
             if(p.getId() != this.id)
                 p.updateFingerTable(this, i);
@@ -265,6 +300,7 @@ public class Node implements INode {
         Range r = new Range(this.id, false, this.finger[i].node.getId(), false);
         // (s ∈ [n, finger[i].node))
         if(r.contains(s.getId())) {
+            Printer.print("[updateFingerTable] Setting finger " + i + " to " + s.getId(), this.nodeId);
             this.finger[i].node = s;
             INode p = this.getPredecessor();
             p.updateFingerTable(s, i);
@@ -337,9 +373,9 @@ public class Node implements INode {
      * @param msg The message to print before the finger table
      */
     public void printFingerTable(String msg) {
-        System.out.println(msg + " Node " + this.id + " finger table:");
+        Printer.print(msg + " Node " + this.id + " finger table:", this.nodeId);
         for(Finger f : finger) {
-            System.out.println(f);
+            Printer.print(f.toString(), this.nodeId);
         }
     }
 
@@ -350,7 +386,7 @@ public class Node implements INode {
      * @param msg The message to print before the predecessor and successor
      */
     public void printPreSucc(String msg) throws RemoteException {
-        System.out.println(msg + "Pre/Succ: " + this.predecessor.getId() + " => [Node " + this.id + "] => " + this.getSuccessor().getId());
+        Printer.print("Pre/Succ: " + this.predecessor.getId() + " => [Node " + this.id + "] => " + this.getSuccessor().getId(), this.nodeId);
     }
 
     /**
@@ -365,9 +401,9 @@ public class Node implements INode {
      * Print the dictionary of the node
      */
     public void printDictionary() {
-        System.out.println("Node " + this.id + " dictionary:");
+        Printer.print("Node " + this.id + " dictionary:", this.nodeId);
         for(Integer key : dictionary.keySet()) {
-            System.out.println(key + ": " + dictionary.get(key));
+            Printer.print(key + ": " + dictionary.get(key), this.nodeId);
         }
     }
 
@@ -428,6 +464,7 @@ public class Node implements INode {
             System.out.println("The configuration file does not contain the required information for node " + nodeId);
         }
         String thisUrl = "//" + thisHost + ":" + thisPort + "/Node" + nodeId;
+        Printer.print("Initializing node " + nodeId + " on " + thisUrl, "Node" + nodeId);
 
         // Initialize the node variables
         INode nodeStub;
@@ -443,6 +480,7 @@ public class Node implements INode {
             localReg = LocateRegistry.createRegistry(thisPort);
             Naming.bind(thisUrl, nodeStub);
             System.out.println("Node " + nodeId + " running on " + thisUrl + " with id " + node.getId());
+            Printer.print("Node " + nodeId + " running on " + thisUrl + " with id " + node.getId(), "Node" + nodeId);
 
             // Get the configuration for the bootstrap node
             INode bsNode;
@@ -453,12 +491,15 @@ public class Node implements INode {
             
             // If this node is the bootstrap node, start a network
             if(bsNodeId.equals(nodeId)) {
+                System.out.println("Creating network....");
                 node.join(null);
+                System.out.println("Network created!");
+                Printer.print("Node " + nodeId + " is the bootstrap node, creating network.", "Node" + nodeId);
             }
             // If this node not the bootstrap node, wait until the bootstrap node is available
             else {
-                System.out.println("Connecting to " + bsNodeUrl + "..");
-                Printer.print("Connecting to " + bsNodeUrl + "..", nodeId);
+                System.out.println("Connecting to " + bsNodeUrl + "...");
+                Printer.print("Node " + nodeId + " is not the bootstrap node, connecting to " + bsNodeUrl + "...", "Node" + nodeId);
 
                 // Continuously attempt to connect to the bootstrap node until 
                 // it is available, waiting 500ms in between connection attempts.
@@ -467,9 +508,10 @@ public class Node implements INode {
                     try {
                         bsNode = (INode) Naming.lookup(bsNodeUrl);
                         System.out.println("Connected!");
-                        Printer.print("Connected to bootstrap node " + bsNode.getId() + "!", nodeId);
+                        Printer.print("Connected to bootstrap node " + bsNode.getId() + ", now joining network.", "Node" + nodeId);
                         node.join(bsNode);
                         System.out.println("Joined network!");
+                        Printer.print("Joined network with node running on " + bsNodeUrl + ".", "Node" + nodeId);
                         break;
                     } 
                     // Bootstrap node was not available, wait and try again
@@ -480,16 +522,20 @@ public class Node implements INode {
                 }
             }
 
-            // Run node for s seconds
+            // Run node for s seconds - in this case, 5 minutes
             int s = 300;
+            System.out.println("Running node for " + s + " seconds.");
+            Printer.print("Running node for " + s + " seconds.", "Node" + nodeId);
             Thread.sleep(s * 1000);
-            System.out.println("Shutting down node " + nodeId);
+            System.out.println("Shutting down node " + nodeId + "..");
+            Printer.print("Shutting down node.", "Node" + nodeId);
             node.shutdown();
+            Printer.print("Node " + nodeId + " has been shut down successfully.", "Node" + nodeId);
         } 
         // An error occured while trying to start this node.
         catch (Exception e) {
             System.out.println("Error starting node, see the logs for more info.");
-            Printer.print("Error starting node: " + e.getMessage(), nodeId);
+            Printer.print("Error starting node: " + e.getMessage(), "Node" + nodeId);
         }
     }
 

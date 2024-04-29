@@ -23,7 +23,7 @@ public class Client {
     public static String dataClient(Scanner scanner, INode node) throws RemoteException {
         String option = "";
         while(option != "3") {
-            System.out.println("\nData Options:\n  1. Lookup\n  2. Insert\n  3. Exit to main menu");
+            System.out.println("\nData Options:\n  1. Lookup\n  2. Insert\n  3. Back to main menu");
             System.out.print("Enter your choice: ");
             option = scanner.nextLine();
         
@@ -47,7 +47,10 @@ public class Client {
                 System.out.print("Enter the meaning: ");
                 String meaning = scanner.nextLine();
                 int key = node.insert(word, meaning);
-                System.out.println("Result status: Inserted word " + word + " at node " + key);
+                if(key == -1)
+                    System.out.println("Word exists or collision detected.");
+                else
+                    System.out.println("Result status: Inserted word " + word + " at node " + key);
             }
 
             // Exit the client
@@ -68,7 +71,7 @@ public class Client {
     public static String structureClient(Scanner scanner, INode node) throws RemoteException {
         String option = "";
         while(option != "4") {
-            System.out.println("\nStructure Options:\n  1. Print Network\n  2. Print Finger Table\n  3. Print Dictionary\n  4. Exit to main menu");
+            System.out.println("\nStructure Options:\n  1. Print Network\n  2. Print Finger Table\n  3. Print Dictionary\n  4. Back to main menu");
             System.out.print("Enter your choice: ");
             option = scanner.nextLine();
 

@@ -2,7 +2,9 @@
 JC = javac
 JR = java
 BDIR = build
+# Local bootstrap node
 NODE = //localhost:8100/Node00
+# Remote bootstrap node
 RNODE = //csel-kh1250-10.cselabs.umn.edu:8110/Node00
 
 # Optional Arguments
@@ -22,7 +24,6 @@ all:
 #	Ex: "make client"
 client:
 	cd ${BDIR} && ${JR} src/Client ${NODE}
-
 # Run the remote client
 #	Ex: "make rclient"
 rclient:
@@ -32,18 +33,21 @@ rclient:
 #	Ex: "make dict"
 dict:
 	cd ${BDIR} && ${JR} src/DictionaryLoader ${NODE} ../dict.txt
-
 # Run the remote dictionary loader
 #	Ex: "make rdict"
 rdict:
 	cd ${BDIR} && ${JR} src/DictionaryLoader ${RNODE} ../dict.txt
 
+# Run the entire DHT - all on a single host
+#	Ex: "make dht"
+dht:
+	for i in {0..7}; do sleep 1; make node id=0$$i & done
+
 # Run a single node 
 # Default config: 00=bootstrap node, 01-08=chord nodes
-# Parameters: id=node id, s=seconds to run
+# Parameters: id=node id, loc=local/remote
 #	Ex: "make node"
 #   Ex: "make node id=05"
-#   Ex: "make node id=08 s=60"
 node:
 	clear
 	cd ${BDIR} && ${JR} src/Node ${id} ../config/${loc}.txt
