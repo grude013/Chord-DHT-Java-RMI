@@ -3,7 +3,7 @@ JC = javac
 JR = java
 BDIR = build
 NODE = //localhost:8100/Node00
-RNODE = //csel-kh1250-10.cselabs.umn.edu:8100/Node00
+RNODE = //csel-kh1250-10.cselabs.umn.edu:8110/Node00
 
 # Optional Arguments
 id?=00# The id of the server
