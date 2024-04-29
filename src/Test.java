@@ -9,22 +9,34 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Test {
+
+    public static int getTotalWords(Node[] nodes) {
+        int totalWords = 0;
+        for(Node n : nodes) {
+            totalWords += n.dictionary.size();
+        }
+        return totalWords;
+    }
+
     public static void main(String[] args) throws RemoteException {
+
         // Create network with node 0
-        Node node0 = new BootstrapNode("//localhost:8103/Node03");
+        Node node0 = new Node("//localhost:8103/Node03");
         node0.join(null);
 
         // Create chord nodes
-        Node node1 = new ChordNode("//localhost:8167/Node08");
+        Node node1 = new Node("//localhost:8167/Node08");
         node1.join(node0);
-        // Node node2 = new ChordNode("//localhost:8812/Node08");
-        // node2.join(node0);
-        Node node3 = new ChordNode("//localhost:8193/Node07");
+        Node node2 = new Node("//localhost:8812/Node08");
+        node2.join(node0);
+        Node node3 = new Node("//localhost:8193/Node07");
         node3.join(node0);
-        // Node node6 = new ChordNode("//localhost:8102/Node02");
-        // node6.join(node0);
+        Node node6 = new Node("//localhost:8102/Node02");
+        node6.join(node0);
+        Node node7 = new Node("//localhost:8177/Node02");
+        Node node8 = new Node("//localhost:8552/Node02");
 
-        Node[] nodes = {node0, node1, node3};
+        Node[] nodes = {node0, node1, node2, node3, node6, node7, node8};
 
         // Update Node0 finger table
         // node0.fingerTable[0].setNode(node1);
@@ -48,10 +60,10 @@ public class Test {
         // node3.setPredecessor(node1);
 
         // Print all finger tables
-        System.out.println();
-        for(Node n : nodes) {
-            n.printFingerTable("");
-        }
+        // System.out.println();
+        // for(Node n : nodes) {
+        //     n.printFingerTable("");
+        // }
 
         // Load the dictionary file
         Map<String, String> map = new HashMap<String, String>();
@@ -62,6 +74,7 @@ public class Test {
                 String[] parts = line.split(" : ");
                 map.put(parts[0], parts[1]);
                 node0.insert(parts[0], parts[1]);
+                // System.out.println(parts[0] + " => " + getTotalWords(nodes));
                 line = reader.readLine();
             }
             reader.close();
@@ -71,8 +84,9 @@ public class Test {
 
         int totalWords = 0;
         for(Node n : nodes) {
-            n.printDictionary();
+            // n.printDictionary();
             totalWords += n.dictionary.size();
+            // System.out.println("Node " + n.getId() + " total words: " + n.dictionary.size());
         }
         System.out.println("Total words: " + totalWords);
 
@@ -101,6 +115,11 @@ public class Test {
                 int key = node0.insert(word, meaning);
                 System.out.println("Result status: Inserted word " + word + " at node " + key);
             }
+            else if(option.equals("4")) {
+                node8.join(node0);
+                node7.join(node0);
+            }
+
             // Exit the client
             else if(option.equals("3")) {
                 System.out.println("Exiting...");

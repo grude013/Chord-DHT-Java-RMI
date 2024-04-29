@@ -1,13 +1,26 @@
+/**
+ * @file Hash.java
+ * @summary Contains the Hash class. This class is used to hash a string into a m bit integer.
+ * 
+ * @author Jamison Grudem (grude013)
+ * @grace_days Using 1 grace day
+ */
 package src;
-/* FNV-1a Hash --  Fowler/Noll/Vo Hash function */
 
-import java.util.*;
-
+/**
+ * @class Hash
+ * @summary Contains a static method to hash a string into a m bit integer.
+ */
 public class Hash {
 
     private static final int FNV_32_INIT = 0x811c9dc5;   // 2166136261
     private static final int FNV_32_PRIME = 0x01000193;  // 16777619;
 
+    /**
+     * Hash a string into a m bit integer.
+     * @param Key The string to hash
+     * @return
+     */
     public static int hash32(String Key) {   // FNV-1a Hash
         byte[] kBytes = Key.getBytes();
         int hash = FNV_32_INIT;
@@ -23,13 +36,7 @@ public class Hash {
            }
            else hash = Math.abs(hash);  
         }
-        return hash & 0b111111111111111;
+        return hash & 0b111111111111111;//1111111111111111111111;
    }
-
-   public static void main(String[] argv ) {
-      int hashval = hash32( argv[0]  );
-      System.out.println( "Hash value using hash32 is " + hashval );
-   }
-
 }
 

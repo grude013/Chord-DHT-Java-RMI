@@ -1,5 +1,7 @@
-node.bootstrap=03
+node.bootstrap=00
 node.count=8
+node00.host=localhost
+node00.port=8100
 node01.host=localhost
 node01.port=8101
 node02.host=localhost
@@ -13,6 +15,4 @@ node05.port=8105
 node06.host=localhost
 node06.port=8106
 node07.host=localhost
-node07.port=8193
-node08.host=localhost
-node08.port=8167
+node07.port=8107

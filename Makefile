@@ -2,47 +2,44 @@
 JC = javac
 JR = java
 BDIR = build
+CNFG = ../config/local.txt
+NODE = //localhost:8100/Node00
 
+# Optional Arguments
+id?=00# The id of the server
+
+# Compile all dependencies
+# 	Ex1: "make"
+# 	Ex2: "make all"
 all: 
 	-make clean
 	mkdir log
-	mkdir log/html
-	${JC} src/*.java -d build
-	echo "\n\n"
+	${JC} src/*.java -d ${BDIR}
+	clear
 
+# Run the client
+#	Ex: "make client"
 client:
-	cd ${BDIR} && ${JR} src/Client
+	cd ${BDIR} && ${JR} src/Client ${NODE}
 
+# Run the dictionary loader
+#	Ex: "make dict"
 dict:
-	cd ${BDIR} && ${JR} src/DictionaryLoader test ../dict.txt
+	cd ${BDIR} && ${JR} src/DictionaryLoader ${NODE} ../dict.txt
 
-node2:
-	cd ${BDIR} && ${JR} src/BootstrapNode 01 ../config/local.txt
+# Run a single node 
+# Default config: 00=bootstrap node, 01-08=chord nodes
+# Parameters: id=node id, s=seconds to run
+#	Ex: "make node"
+#   Ex: "make node id=05"
+#   Ex: "make node id=08 s=60"
 node:
-	cd ${BDIR} && ( ${JR} src/BootstrapNode 01 ../config/local.txt & \
-					${JR} src/ChordNode 02 ../config/local.txt & \
-					${JR} src/ChordNode 03 ../config/local.txt & \
-					${JR} src/ChordNode 04 ../config/local.txt & \
-					${JR} src/ChordNode 05 ../config/local.txt & \
-					${JR} src/ChordNode 06 ../config/local.txt & \
-					${JR} src/ChordNode 07 ../config/local.txt & \
-					${JR} src/ChordNode 08 ../config/local.txt & echo "")
+	clear
+	cd ${BDIR} && ${JR} src/Node ${id} ${CNFG}
 
-b:
-	cd ${BDIR} && ${JR} src/BootstrapNode 03 ../config/local.txt && cd ..
-c1:
-	cd ${BDIR} && ${JR} src/ChordNode 08 ../config/local.txt && cd ..
-c2:
-	cd ${BDIR} && ${JR} src/ChordNode 07 ../config/local.txt && cd ..
-
+# Clean all build files and logs
+# 	Ex: "make clean"
 clean:
-	rm -rf ${BDIR}
-	rm -rf log
-
-test: 
-	make
-	cd ${BDIR} && ${JR} src/Test && cd ..
-
-range:
-	make
-	cd ${BDIR} && ${JR} src/Range && cd ..
+	@echo "Cleaning All Build & Log Files"
+	-rm -rf ${BDIR}
+	-rm -rf log
