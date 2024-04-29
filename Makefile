@@ -3,6 +3,7 @@ JC = javac
 JR = java
 BDIR = build
 NODE = //localhost:8100/Node00
+RNODE = //csel-kh1250-10.cselabs.umn.edu:8100/Node00
 
 # Optional Arguments
 id?=00# The id of the server
@@ -22,10 +23,20 @@ all:
 client:
 	cd ${BDIR} && ${JR} src/Client ${NODE}
 
+# Run the remote client
+#	Ex: "make rclient"
+rclient:
+	cd ${BDIR} && ${JR} src/Client ${RNODE}
+
 # Run the dictionary loader
 #	Ex: "make dict"
 dict:
 	cd ${BDIR} && ${JR} src/DictionaryLoader ${NODE} ../dict.txt
+
+# Run the remote dictionary loader
+#	Ex: "make rdict"
+rdict:
+	cd ${BDIR} && ${JR} src/DictionaryLoader ${RNODE} ../dict.txt
 
 # Run a single node 
 # Default config: 00=bootstrap node, 01-08=chord nodes
