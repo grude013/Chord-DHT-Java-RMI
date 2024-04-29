@@ -4,7 +4,7 @@
  * entry in the finger table of a node.
  * 
  * @author Jamison Grudem (grude013)
- * @grace_days Using 1 grace day
+ * @grace_days Using 2 grace days
  */
 package src;
 

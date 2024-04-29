@@ -3,7 +3,7 @@
  * @summary Contains the Range class. This class is used to represent a range of integers.
  * 
  * @author Jamison Grudem (grude013)
- * @grace_days Using 1 grace day
+ * @grace_days Using 2 grace days
  */
 package src; 
 

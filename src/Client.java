@@ -5,7 +5,7 @@
  * DHT by printing the finger table or dictionary of a node.
  * 
  * @author Jamison Grudem (grude013)
- * @grace_days Using 1 grace days
+ * @grace_days Using 2 grace days
  */
 package src;
 

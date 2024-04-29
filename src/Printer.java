@@ -3,7 +3,7 @@
  * @brief Printer class used for writing to the .log and .html files for logging and debugging.
  * 
  * @author Jamison Grudem (grude013)
- * @grace_days Using 1 grace days
+ * @grace_days Using 2 grace days
  */
 package src;
 

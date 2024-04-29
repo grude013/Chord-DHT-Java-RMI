@@ -3,7 +3,7 @@
  * @summary Contains the Hash class. This class is used to hash a string into a m bit integer.
  * 
  * @author Jamison Grudem (grude013)
- * @grace_days Using 1 grace day
+ * @grace_days Using 2 grace days
  */
 package src;
 

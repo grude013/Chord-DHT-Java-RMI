@@ -1,3 +1,9 @@
+# @file Makefile
+# @brief Makefile for Assignment 7
+# 
+# @author Jamison Grudem
+# @grace_days Using 2 grace days
+
 # Predefined Variables: used for compilation and running
 JC = javac
 JR = java

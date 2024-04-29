@@ -3,7 +3,7 @@
  * @summary Reads in a configuration file and stores key-value pairs for easy access.
  * 
  * @author Jamison Grudem (grude013)
- * @grace_days Using 1 grace day
+ * @grace_days Using 2 grace days
  */
 package src;
 
