@@ -229,6 +229,6 @@ The `Structure Client` submenu options are as follows:
 ## Logging
 Log files are generated for each node in the DHT. They can be found in the `log` directory. The log file for each node is named `Node<node id>.log`. The log file contains information about the node's operations, such as joining the network, inserting words, looking up words, and more. The log file also contains information about the node's finger table, predecessor, and successor. The log file is created when the node is started and is appended to throughout the node's lifetime. The dictionary loader also logs information about the words it inserts into the DHT such as the word, and the node it was inserted into. There is also a total count of words entered at the end. To verify that there was no insertion collision, the number of words inserted should be 196 for the sample dictionary file `dict.txt`.
 
-## Testing + Demo
+## Demo
 Here is an example of the client program running on a local DHT. The DHT is running with 8 nodes in the background and the dictionary file has been loaded into the DHT. The client program is used to lookup words in the DHT and view the structure of the network.
 ![](./client.png)
