@@ -2,11 +2,11 @@
 JC = javac
 JR = java
 BDIR = build
-CNFG = ../config/local.txt
 NODE = //localhost:8100/Node00
 
 # Optional Arguments
 id?=00# The id of the server
+loc?=local# The location of the server
 
 # Compile all dependencies
 # 	Ex1: "make"
@@ -35,7 +35,7 @@ dict:
 #   Ex: "make node id=08 s=60"
 node:
 	clear
-	cd ${BDIR} && ${JR} src/Node ${id} ${CNFG}
+	cd ${BDIR} && ${JR} src/Node ${id} ../config/${loc}.txt
 
 # Clean all build files and logs
 # 	Ex: "make clean"

@@ -1,3 +1,5 @@
+node.bootstrap=01
+node.count=8
 node01.host=csel-kh1250-13.cselabs.umn.edu
 node01.port=8013
 node02.host=csel-kh1250-14.cselabs.umn.edu
